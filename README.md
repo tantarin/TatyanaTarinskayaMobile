@@ -1,7 +1,9 @@
 # TatyanaTarinskayaMobile
-TatianaTarinskaiaMobile
+
 branch #2
+
 A way to run with maven:
+
 1) install adb tool and appium server;
 
 2) run Appium Server;
