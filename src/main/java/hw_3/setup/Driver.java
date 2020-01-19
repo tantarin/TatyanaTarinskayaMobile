@@ -44,7 +44,6 @@ public class Driver extends TestProperties {
 
         switch (propertyFileName) {
             case "web":
-                capabilities.setCapability("chromedriverExecutable", "src\\main\\resources\\chromedriver79.exe");
                 capabilities.setCapability(MobileCapabilityType.BROWSER_NAME, BROWSER);
                 driverSingle = new AppiumDriver(new URL(DRIVER), capabilities);
                 if(waitSingle == null) waitSingle = new WebDriverWait(driverSingle, 10);
