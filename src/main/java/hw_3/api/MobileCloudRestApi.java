@@ -15,13 +15,13 @@ public class MobileCloudRestApi {
     private static final String DEVICE = "device/";
     private static final String INSTALL = "storage/install/";
     public static final String PROPERTY_TOKEN = ApiProperties.getInstance().getProperty("token");;
-    public static final String FILE_APP = ApiProperties.getInstance().getProperty("fileApp");
     public static final String SERIAL = ApiProperties.getInstance().getProperty("serial");
 
     private MobileCloudRestApi() {
     }
 
     private HashMap<String, String> params = new HashMap<>();
+    private static File fileApp;
 
     public static class RequestBuilder {
         MobileCloudRestApi mobileCloudRestApi;
@@ -31,30 +31,41 @@ public class MobileCloudRestApi {
         }
 
         //Install application on the device
-        public Response installApp(String serial){
+        public Response installApp(){
             return RestAssured
                     .given()
                         .spec(requestSpecification())
                     .with()
-                        .multiPart("file", new File(FILE_APP))
+                        .queryParams(mobileCloudRestApi.params)
+                        .multiPart("file", fileApp)
                         .contentType("multipart/form-data")
-                        .queryParam("serial",serial)
                         .log().all()
                     .when()
-                        .post(ROOT_URL + INSTALL + SERIAL)
+                        .post(ROOT_URL + INSTALL)
                     .prettyPeek();
         }
 
         //Search for fully operational, available device
-        public Response getDevice(String serialId) {
+        public Response getDevice() {
             return RestAssured
                     .given()
                         .spec(requestSpecification())
                     .with()
+                        .queryParams(mobileCloudRestApi.params)
                         .log().all()
                     .when()
-                        .post(ROOT_URL + DEVICE + serialId)
+                        .post(ROOT_URL + DEVICE)
                     .prettyPeek();
+        }
+
+        public RequestBuilder serial(String serialNumber) {
+            mobileCloudRestApi.params.put("serial", serialNumber);
+            return this;
+        }
+
+        public RequestBuilder file(File fileApp) {
+            mobileCloudRestApi.fileApp = fileApp;
+            return this;
         }
     }
 

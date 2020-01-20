@@ -28,7 +28,7 @@ public class Driver extends TestProperties {
         SUT = t_sut == null ? null : "https://" + t_sut;
         String APP_PACKAGE = getProp("app_package");
         String APP_ACTIVITY = getProp("app_activity");
-        String TOKEN = getProp("token");
+  //      String TOKEN = getProp("token");
         String AUTOMATION_NAME = getProp("automation_name");
         String UDID;
 
@@ -65,11 +65,18 @@ public class Driver extends TestProperties {
                     capabilities.setCapability("appPackage", APP_PACKAGE);
                     capabilities.setCapability("appActivity", APP_ACTIVITY);
                 }
-                //install app
-                MobileCloudRestApi.with().installApp(TOKEN);
+
+
                 String AUT = getProp("appName");  //  app under testing
                 File app = new File(AUT);
                 capabilities.setCapability(MobileCapabilityType.APP, app.getAbsolutePath());
+
+                MobileCloudRestApi
+                        .with()
+                            .file(app)
+                            .serial(UDID)
+                        .installApp();
+
                 driverSingle = new AppiumDriver(new URL(DRIVER), capabilities);
                 if(waitSingle == null) waitSingle = new WebDriverWait(driverSingle, 10);
                 break;
