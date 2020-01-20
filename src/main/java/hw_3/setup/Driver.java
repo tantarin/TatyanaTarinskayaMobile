@@ -1,5 +1,6 @@
 package hw_3.setup;
 
+import hw_3.api.MobileCloudRestApi;
 import io.appium.java_client.AppiumDriver;
 import io.appium.java_client.remote.MobileCapabilityType;
 import org.openqa.selenium.remote.DesiredCapabilities;
@@ -13,6 +14,7 @@ public class Driver extends TestProperties {
 
     private static AppiumDriver driverSingle = null;
     private static WebDriverWait waitSingle;
+    protected static String platformName;
 
     protected String SUT; // site under testing
 
@@ -20,27 +22,37 @@ public class Driver extends TestProperties {
     }
 
     protected void prepareDriver() throws Exception {
-        String PLATFORM_NAME = getProp("platformName"); //ios or driver
         String DRIVER = getProp("driver");
-        String DEVICE_NAME = getProp("device");
-        String BROWSER;
+        String BROWSER; //chrome or safari
         String t_sut = getProp("sut");
         SUT = t_sut == null ? null : "https://" + t_sut;
-        DesiredCapabilities capabilities = new DesiredCapabilities();
-        capabilities.setCapability(MobileCapabilityType.DEVICE_NAME, DEVICE_NAME);
+        String APP_PACKAGE = getProp("app_package");
+        String APP_ACTIVITY = getProp("app_activity");
+        String TOKEN = getProp("token");
+        String AUTOMATION_NAME = getProp("automation_name");
+        String UDID;
 
-        switch (PLATFORM_NAME) {
+
+
+        DesiredCapabilities capabilities = new DesiredCapabilities();
+        capabilities.setCapability("automationName", AUTOMATION_NAME);
+
+        switch (platformName) {
             case "Android":
-                capabilities.setCapability(MobileCapabilityType.DEVICE_NAME, DEVICE_NAME);
+                UDID = getProp("udidAndroid");
+                capabilities.setCapability(MobileCapabilityType.UDID, UDID);
+                capabilities.setCapability(MobileCapabilityType.PLATFORM_NAME, "Android");
                 BROWSER = "Chrome";
                 break;
             case "IOS":
+                UDID = getProp("udidIOS");
+                capabilities.setCapability(MobileCapabilityType.UDID, UDID);
+                capabilities.setCapability(MobileCapabilityType.PLATFORM_NAME, "iOS");
                 BROWSER = "Safari";
                 break;
             default:
                 throw new Exception("Unknown mobile platform");
         }
-        capabilities.setCapability(MobileCapabilityType.PLATFORM_NAME, PLATFORM_NAME);
 
         switch (propertyFileName) {
             case "web":
@@ -49,6 +61,12 @@ public class Driver extends TestProperties {
                 if(waitSingle == null) waitSingle = new WebDriverWait(driverSingle, 10);
                 break;
             case "native":
+                if(platformName.equals("Android")) {
+                    capabilities.setCapability("appPackage", APP_PACKAGE);
+                    capabilities.setCapability("appActivity", APP_ACTIVITY);
+                }
+                //install app
+                MobileCloudRestApi.with().installApp(TOKEN);
                 String AUT = getProp("appName");  //  app under testing
                 File app = new File(AUT);
                 capabilities.setCapability(MobileCapabilityType.APP, app.getAbsolutePath());
@@ -58,8 +76,7 @@ public class Driver extends TestProperties {
             default:
                 throw new Exception("Unclear type of mobile app");
         }
-
-        }
+    }
     protected AppiumDriver driver() throws Exception {
         if(driverSingle == null) prepareDriver();
         return driverSingle;

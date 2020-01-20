@@ -12,6 +12,7 @@ public class Hooks extends Driver {
     @BeforeGroups(groups = {"native"}, description = "Prepare driver to run native test(s)")
     public void setUpNative() throws Exception {
         propertyFileName = "native";
+        platformName = "Android";
         email = getProp("email");
         username = getProp("username");
         password = getProp("password");
@@ -22,6 +23,7 @@ public class Hooks extends Driver {
     @BeforeGroups(groups = {"web"}, description = "Prepare driver to run web test(s)")
     public void setUpWeb() throws Exception {
         propertyFileName = "web";
+        platformName = "Android";
         prepareDriver();
         System.out.println("Driver for web tests prepared");
     }
