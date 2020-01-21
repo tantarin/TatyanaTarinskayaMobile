@@ -24,11 +24,11 @@ public class Driver extends TestProperties {
     protected void prepareDriver() throws Exception {
         String DRIVER = getProp("driver");
         String BROWSER; //chrome or safari
+        //using in tests
         String t_sut = getProp("sut");
         SUT = t_sut == null ? null : "https://" + t_sut;
         String APP_PACKAGE = getProp("app_package");
         String APP_ACTIVITY = getProp("app_activity");
-  //      String TOKEN = getProp("token");
         String AUTOMATION_NAME = getProp("automation_name");
         String UDID;
 
@@ -54,6 +54,7 @@ public class Driver extends TestProperties {
                 throw new Exception("Unknown mobile platform");
         }
 
+
         switch (propertyFileName) {
             case "web":
                 capabilities.setCapability(MobileCapabilityType.BROWSER_NAME, BROWSER);
@@ -62,21 +63,26 @@ public class Driver extends TestProperties {
                 break;
             case "native":
                 if(platformName.equals("Android")) {
+                    String AUT = getProp("appNameAndroid");  //  app under testing
+                    File app = new File(AUT);
+                    MobileCloudRestApi
+                            .with()
+                                .file(app)
+                                .serial(UDID)
+                            .installApp();
                     capabilities.setCapability("appPackage", APP_PACKAGE);
                     capabilities.setCapability("appActivity", APP_ACTIVITY);
-                }
-
-
-                String AUT = getProp("appName");  //  app under testing
-                File app = new File(AUT);
-                capabilities.setCapability(MobileCapabilityType.APP, app.getAbsolutePath());
-
-                MobileCloudRestApi
-                        .with()
+                    capabilities.setCapability(MobileCapabilityType.APP, app.getAbsolutePath());
+                } else {
+                    String AUT = getProp("appNameIOS");
+                    File app = new File(AUT);
+                    MobileCloudRestApi
+                            .with()
                             .file(app)
                             .serial(UDID)
-                        .installApp();
-
+                            .installApp();
+                    capabilities.setCapability("bundleId", getProp("bundleId"));
+                }
                 driverSingle = new AppiumDriver(new URL(DRIVER), capabilities);
                 if(waitSingle == null) waitSingle = new WebDriverWait(driverSingle, 10);
                 break;
