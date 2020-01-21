@@ -31,6 +31,7 @@ public class Driver extends TestProperties {
         String APP_ACTIVITY = getProp("app_activity");
         String AUTOMATION_NAME = getProp("automation_name");
         String UDID;
+        File app;
 
 
 
@@ -64,25 +65,24 @@ public class Driver extends TestProperties {
             case "native":
                 if(platformName.equals("Android")) {
                     String AUT = getProp("appNameAndroid");  //  app under testing
-                    File app = new File(AUT);
-                    MobileCloudRestApi
-                            .with()
-                                .file(app)
-                                .serial(UDID)
-                            .installApp();
+                    app = new File(AUT);
                     capabilities.setCapability("appPackage", APP_PACKAGE);
                     capabilities.setCapability("appActivity", APP_ACTIVITY);
                     capabilities.setCapability(MobileCapabilityType.APP, app.getAbsolutePath());
                 } else {
                     String AUT = getProp("appNameIOS");
-                    File app = new File(AUT);
-                    MobileCloudRestApi
-                            .with()
-                            .file(app)
-                            .serial(UDID)
-                            .installApp();
+                    app = new File(AUT);
                     capabilities.setCapability("bundleId", getProp("bundleId"));
                 }
+                MobileCloudRestApi
+                        .with()
+                        .file(app)
+                        .serial(UDID)
+                        .installApp();
+                MobileCloudRestApi
+                        .with()
+                        .getDevice();
+                
                 driverSingle = new AppiumDriver(new URL(DRIVER), capabilities);
                 if(waitSingle == null) waitSingle = new WebDriverWait(driverSingle, 10);
                 break;
